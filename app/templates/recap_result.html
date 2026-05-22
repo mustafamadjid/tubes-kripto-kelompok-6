@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+<main class="content">
+  <section class="section-heading"><p class="eyebrow">Results</p><h1>Hasil Rekapitulasi</h1></section>
+  {% if not result %}
+    <p class="alert">Belum ada rekapitulasi. Jalankan dari dashboard admin.</p>
+  {% else %}
+    <section class="stats-grid">
+      <article><strong>{{ result.total_votes }}</strong><span>Total</span></article>
+      <article><strong>{{ result.valid_votes }}</strong><span>Valid</span></article>
+      <article><strong>{{ result.invalid_votes }}</strong><span>Invalid</span></article>
+    </section>
+    <table><thead><tr><th>Kandidat</th><th>Suara</th></tr></thead><tbody>
+      {% for row in result.candidate_results %}<tr><td>{{ row.candidate_name }}</td><td>{{ row.vote_count }}</td></tr>{% endfor %}
+    </tbody></table>
+    <h2>Invalid Vote Details</h2>
+    <table><thead><tr><th>Vote ID</th><th>Status</th><th>Reason</th></tr></thead><tbody>
+      {% for row in result.invalid_vote_details %}<tr><td>{{ row.vote_id }}</td><td>{{ row.status }}</td><td>{{ row.reason }}</td></tr>{% endfor %}
+    </tbody></table>
+  {% endif %}
+</main>
+{% endblock %}

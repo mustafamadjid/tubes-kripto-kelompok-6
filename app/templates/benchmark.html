@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
+<main class="content">
+  <section class="section-heading"><p class="eyebrow">Benchmark</p><h1>Crypto Benchmark</h1></section>
+  <table><thead><tr><th>Operation</th><th>Duration ms</th><th>Sample</th><th>Created</th></tr></thead><tbody>
+    {% for row in records %}<tr><td>{{ row.operation_name }}</td><td>{{ row.duration_ms }}</td><td>{{ row.sample_size }}</td><td>{{ row.created_at }}</td></tr>{% endfor %}
+  </tbody></table>
+</main>
+{% endblock %}

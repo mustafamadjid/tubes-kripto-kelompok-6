@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ title or "Citizen Casting Vote" }}</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <div class="page-shell">
+    <header class="topbar">
+      <a class="brand" href="/login">Your Website</a>
+      <nav class="nav">
+        <a href="/login">Home</a>
+        <a href="/admin/login">About us</a>
+        <a href="/vote">Work</a>
+        <a href="/admin/dashboard">Info</a>
+      </nav>
+      <a class="button button-primary nav-cta" href="/login">Get Started</a>
+    </header>
+    {% block content %}{% endblock %}
+  </div>
+</body>
+</html>

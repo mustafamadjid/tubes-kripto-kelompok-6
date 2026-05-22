@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+<main class="center-stage">
+  <section class="panel narrow">
+    <p class="eyebrow">Vote Recorded</p>
+    <h1>Suara berhasil disimpan</h1>
+    <p>Vote ID: <code>{{ vote_id }}</code></p>
+    <p>Data suara sudah melalui RSA-OAEP, SHA-256, dan RSA-PSS sebelum tersimpan.</p>
+    <a class="button button-primary" href="/login">Kembali</a>
+  </section>
+</main>
+{% endblock %}

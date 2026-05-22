@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
+<main class="content">
+  <section class="section-heading"><p class="eyebrow">Audit</p><h1>Audit Logs</h1></section>
+  <table><thead><tr><th>Time</th><th>Event</th><th>Entity</th><th>Message</th></tr></thead><tbody>
+    {% for log in logs %}<tr><td>{{ log.created_at }}</td><td>{{ log.event_type }}</td><td>{{ log.entity_type }} {{ log.entity_id or "" }}</td><td>{{ log.message }}</td></tr>{% endfor %}
+  </tbody></table>
+</main>
+{% endblock %}

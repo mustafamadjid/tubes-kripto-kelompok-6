@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+<main class="content">
+  <section class="section-heading">
+    <p class="eyebrow">Admin Dashboard</p>
+    <h1>Rekapitulasi E-Voting</h1>
+  </section>
+  <section class="stats-grid">
+    <article><strong>{{ total_voters }}</strong><span>Voters</span></article>
+    <article><strong>{{ total_candidates }}</strong><span>Candidates</span></article>
+    <article><strong>{{ total_votes }}</strong><span>Vote Records</span></article>
+    <article><strong>{{ total_audit_logs }}</strong><span>Audit Logs</span></article>
+  </section>
+  <section class="actions-row">
+    <form method="post" action="/admin/recapitulate"><button class="button button-primary" type="submit">Run Recapitulation</button></form>
+    <a class="button button-light" href="/admin/results">Results</a>
+    <a class="button button-light" href="/admin/audit-logs">Audit Logs</a>
+    <a class="button button-light" href="/admin/benchmarks">Benchmarks</a>
+  </section>
+</main>
+{% endblock %}
