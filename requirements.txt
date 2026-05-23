@@ -11,3 +11,4 @@ cryptography
 pytest
 httpx
 itsdangerous
+authlib
