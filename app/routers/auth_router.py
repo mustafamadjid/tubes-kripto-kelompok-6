@@ -1,77 +1,44 @@
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, Form, Request
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.repositories.audit_log_repository import AuditLogRepository
-from app.repositories.benchmark_repository import BenchmarkRepository
-from app.repositories.candidate_repository import CandidateRepository
-from app.repositories.vote_repository import VoteRepository
 from app.repositories.voter_repository import VoterRepository
-from app.services.factory import create_recapitulation_service
+from app.services.auth_service import AuthService
 
-router = APIRouter(prefix="/admin")
+router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
 
 
-def require_admin(request: Request):
-    if not request.session.get("is_admin"):
-        return RedirectResponse("/admin/login", status_code=303)
-    return None
+@router.get("/login")
+def login_page(request: Request):
+    return templates.TemplateResponse(request, "login.html")
 
 
-@router.get("/dashboard")
-def dashboard(request: Request, db: Session = Depends(get_db)):
-    redirect = require_admin(request)
-    if redirect:
-        return redirect
-    context = {
-        "request": request,
-        "total_voters": VoterRepository(db).count_all(),
-        "total_candidates": CandidateRepository(db).count_all(),
-        "total_votes": VoteRepository(db).count_all(),
-        "total_audit_logs": AuditLogRepository(db).count_all(),
-    }
-    return templates.TemplateResponse(request, "admin_dashboard.html", context)
+@router.post("/login")
+def login(request: Request, voter_id: str = Form(...), password: str = Form(...), db: Session = Depends(get_db)):
+    voter = AuthService(VoterRepository(db)).authenticate_voter(voter_id, password)
+    if voter is None:
+        return templates.TemplateResponse(request, "login.html", {"error": "Voter ID atau password salah."})
+    request.session["voter_id"] = voter.voter_id
+    return RedirectResponse("/vote", status_code=303)
 
 
-@router.post("/recapitulate")
-def recapitulate(request: Request, db: Session = Depends(get_db)):
-    redirect = require_admin(request)
-    if redirect:
-        return redirect
-    result = create_recapitulation_service(db).recapitulate_votes()
-    db.commit()
-    request.session["latest_recap"] = {
-        "total_votes": result.total_votes,
-        "valid_votes": result.valid_votes,
-        "invalid_votes": result.invalid_votes,
-        "candidate_results": [item.__dict__ for item in result.candidate_results],
-        "invalid_vote_details": [item.__dict__ for item in result.invalid_vote_details],
-    }
-    return RedirectResponse("/admin/results", status_code=303)
+@router.get("/admin/login")
+def admin_login_page(request: Request):
+    return templates.TemplateResponse(request, "admin_login.html")
 
 
-@router.get("/results")
-def results(request: Request):
-    redirect = require_admin(request)
-    if redirect:
-        return redirect
-    return templates.TemplateResponse(request, "recap_result.html", {"result": request.session.get("latest_recap")})
+@router.post("/admin/login")
+def admin_login(request: Request, username: str = Form(...), password: str = Form(...)):
+    if not AuthService().authenticate_admin(username, password):
+        return templates.TemplateResponse(request, "admin_login.html", {"error": "Admin credential salah."})
+    request.session["is_admin"] = True
+    return RedirectResponse("/admin/dashboard", status_code=303)
 
 
-@router.get("/audit-logs")
-def audit_logs(request: Request, db: Session = Depends(get_db)):
-    redirect = require_admin(request)
-    if redirect:
-        return redirect
-    return templates.TemplateResponse(request, "audit_logs.html", {"logs": AuditLogRepository(db).find_all()})
-
-
-@router.get("/benchmarks")
-def benchmarks(request: Request, db: Session = Depends(get_db)):
-    redirect = require_admin(request)
-    if redirect:
-        return redirect
-    return templates.TemplateResponse(request, "benchmark.html", {"records": BenchmarkRepository(db).find_all()})
+@router.post("/logout")
+def logout(request: Request):
+    request.session.clear()
+    return RedirectResponse("/login", status_code=303)

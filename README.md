@@ -7,7 +7,7 @@ Prototype sistem e-voting untuk tugas kriptografi. Sistem ini memakai RSA-2048 O
 - FastAPI + Jinja2
 - SQLAlchemy 2.x + Alembic
 - PostgreSQL 16
-- `cryptography`, `authlib`
+- `cryptography`
 - Pytest
 - Docker Compose
 
@@ -35,29 +35,10 @@ Rekapitulasi:
 verify signature -> recompute hash -> decrypt ciphertext -> parse plaintext -> count vote
 ```
 
-## Auth
-
-Sistem mendukung dua metode login:
-
-1. **Manual** — Voter ID + password, Admin username + password (tetap tersedia).
-2. **Google OAuth** — Login via akun Google, mendukung dua mode:
-
-| Mode | `OAUTH_MODE` | Domain | voter_id di DB |
-|---|---|---|---|
-| Demo/simulasi | `demo` | bebas (misal `gmail.com`) | username sebelum `@`, titik → underscore |
-| Production ITERA | `production` | `student.itera.ac.id` | NIM 9 digit dari email |
-
-Contoh mode production: `muhammad.123140148@student.itera.ac.id` → `voter_id = "123140148"`
-
-Contoh mode demo: `budi.santoso@gmail.com` → `voter_id = "budi_santoso"`
-
-## Setup — Mode Demo (simulasi lokal)
-
-Cocok untuk pengembangan dan presentasi tanpa akun ITERA asli.
+## Setup
 
 ```bash
-cp .env.demo.example .env
-# Edit .env: isi GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, ADMIN_GOOGLE_EMAILS
+cp .env.example .env
 docker compose up --build
 ```
 
@@ -66,7 +47,7 @@ Di terminal lain:
 ```bash
 docker compose exec app alembic upgrade head
 docker compose exec app python scripts/generate_keys.py
-docker compose exec app python scripts/seed_data.py --demo
+docker compose exec app python scripts/seed_data.py
 ```
 
 Buka:
@@ -75,57 +56,12 @@ Buka:
 http://localhost:8000
 ```
 
-Credential demo (login manual):
+Credential demo:
 
-- Voter ID: sesuai `voter_id` di `DEMO_VOTERS` pada `scripts/seed_data.py`
+- Voter ID: `VOTER001`
 - Voter password: `password123`
 - Admin username: `admin`
 - Admin password: `admin123`
-
-Login Google: gunakan akun Gmail yang sudah ditambahkan sebagai test user di Google Cloud Console dan voter_id-nya terdaftar di database.
-
-## Setup — Mode Production (ITERA)
-
-Digunakan setelah Google Cloud app di-publish dan domain `student.itera.ac.id` siap.
-
-```bash
-cp .env.production.example .env
-# Edit .env: isi semua variabel termasuk APP_BASE_URL production
-docker compose up --build
-```
-
-Di terminal lain:
-
-```bash
-docker compose exec app alembic upgrade head
-docker compose exec app python scripts/generate_keys.py
-docker compose exec app python scripts/seed_data.py --prod
-```
-
-Edit `PRODUCTION_VOTERS` di `scripts/seed_data.py` terlebih dahulu — isi dengan NIM mahasiswa peserta voting.
-
-## Setup Google Cloud Console
-
-1. Buat project di [console.cloud.google.com](https://console.cloud.google.com)
-2. APIs & Services → OAuth consent screen → External → isi nama app
-3. Credentials → Create Credentials → OAuth Client ID → Web Application
-4. Tambahkan Authorized redirect URIs:
-   - `http://localhost:8000/auth/google/callback/voter` (dev)
-   - `http://localhost:8000/auth/google/callback/admin` (dev)
-   - `https://domain-production/auth/google/callback/voter` (prod)
-   - `https://domain-production/auth/google/callback/admin` (prod)
-5. Copy Client ID dan Client Secret ke `.env`
-6. Untuk mode demo: tambahkan akun Gmail peserta sebagai test user di consent screen
-
-## Kelola Kandidat
-
-Admin dapat menambah, mengubah, dan menghapus kandidat melalui dashboard:
-
-```txt
-http://localhost:8000/admin/dashboard → Kelola Kandidat
-```
-
-Kandidat juga bisa di-seed awal melalui `scripts/seed_data.py` (edit bagian `CANDIDATES`).
 
 ## Run Tests
 
@@ -172,5 +108,5 @@ docker compose exec app python scripts/manipulate_vote.py <vote_id> signature
 - Prototype akademik, bukan sistem pemilu production-grade.
 - Password hashing dibuat sederhana untuk demo lokal.
 - Key RSA disimpan di filesystem lokal dan tidak boleh di-commit.
-- Auth memakai session sederhana + Google OAuth (tanpa MFA, HSM, atau blockchain).
-- Hapus kandidat setelah ada vote dapat mempengaruhi hasil rekapitulasi.
+- Auth memakai session sederhana.
+- Tidak ada OAuth, MFA, real-time dashboard, blockchain, atau HSM.
