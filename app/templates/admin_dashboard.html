@@ -12,7 +12,10 @@
     <article><strong>{{ total_audit_logs }}</strong><span>Audit Logs</span></article>
   </section>
   <section class="actions-row">
-    <form method="post" action="/admin/recapitulate"><button class="button button-primary" type="submit">Run Recapitulation</button></form>
+    <form method="post" action="/admin/recapitulate">
+      <button class="button button-primary" type="submit">Run Recapitulation</button>
+    </form>
+    <a class="button button-light" href="/admin/candidates">Kelola Kandidat</a>
     <a class="button button-light" href="/admin/results">Results</a>
     <a class="button button-light" href="/admin/audit-logs">Audit Logs</a>
     <a class="button button-light" href="/admin/benchmarks">Benchmarks</a>

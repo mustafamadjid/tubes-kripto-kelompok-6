@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+<main class="center-stage">
+  <section class="panel narrow">
+    <p class="eyebrow">Edit Kandidat #{{ candidate.id }}</p>
+    <h1 style="font-size:28px;margin-bottom:24px;">Ubah Data Kandidat</h1>
+    {% if flash %}
+    <p class="alert">{{ flash.msg }}</p>
+    {% endif %}
+    <form class="stack" method="post" action="/admin/candidates/{{ candidate.id }}/edit">
+      <label>
+        Nama Kandidat
+        <input name="name" value="{{ candidate.name }}" required>
+      </label>
+      <label>
+        Deskripsi <span style="font-weight:400;color:var(--muted)">(opsional)</span>
+        <textarea name="description" rows="4"
+          style="width:100%;border:1px solid var(--line);border-radius:12px;padding:10px 16px;font:700 14px/1.5 Inter,sans-serif;background:#fbfaf6;color:var(--ink);resize:vertical;">{{ candidate.description or "" }}</textarea>
+      </label>
+      <div style="display:flex;gap:12px;">
+        <button class="button button-primary" type="submit">Simpan Perubahan</button>
+        <a class="button button-light" href="/admin/candidates">Batal</a>
+      </div>
+    </form>
+  </section>
+</main>
+{% endblock %}

@@ -18,5 +18,20 @@ class Settings:
     system_public_key_path: str = os.getenv("SYSTEM_PUBLIC_KEY_PATH", "app/keys/system_public_key.pem")
     enable_dev_routes: bool = os.getenv("ENABLE_DEV_ROUTES", "true").lower() == "true"
 
+    # Google OAuth
+    google_client_id: str = os.getenv("GOOGLE_CLIENT_ID", "")
+    google_client_secret: str = os.getenv("GOOGLE_CLIENT_SECRET", "")
+    # Base URL aplikasi, contoh: http://localhost:8000 atau https://evoting.itera.ac.id
+    app_base_url: str = os.getenv("APP_BASE_URL", "http://localhost:8000")
+    # Domain email yang diizinkan (pisah koma). Kosongkan = semua email boleh.
+    allowed_email_domains: str = os.getenv("ALLOWED_EMAIL_DOMAINS", "student.itera.ac.id")
+    # Email admin yang boleh login via Google (pisah koma)
+    admin_google_emails: str = os.getenv("ADMIN_GOOGLE_EMAILS", "")
+
+    # Mode operasi: "production" atau "demo"
+    # production : hanya @student.itera.ac.id, NIM wajib 9 digit dari email
+    # demo       : domain bebas, voter_id = seluruh username sebelum @ (tanpa angka wajib)
+    oauth_mode: str = os.getenv("OAUTH_MODE", "production")
+
 
 settings = Settings()
