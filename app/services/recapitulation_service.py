@@ -102,4 +102,4 @@ class RecapitulationService:
     def _mark_invalid(self, vote, status: VerificationStatus, event_type: str, reason: str) -> InvalidVoteDetail:
         self.vote_repository.update_verification_status(vote.id, status, reason)
         self.audit_log_repository.create_log(event_type, "vote_record", str(vote.id), reason)
-        return InvalidVoteDetail(vote_id=str(vote.id), voter_id=vote.voter_id, status=status.value, reason=reason)
+        return InvalidVoteDetail(vote_id=str(vote.id), nim=vote.nim, status=status.value, reason=reason)

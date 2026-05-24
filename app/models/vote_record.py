@@ -12,7 +12,7 @@ class VoteRecord(Base):
     __tablename__ = "vote_records"
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid4()))
-    voter_id: Mapped[str] = mapped_column(String(32), unique=True, nullable=False, index=True)
+    nim: Mapped[str] = mapped_column(String(32), unique=True, nullable=False, index=True)
     ciphertext: Mapped[bytes] = mapped_column(LargeBinary, nullable=False)
     ciphertext_hash: Mapped[str] = mapped_column(String(64), nullable=False)
     signature: Mapped[bytes] = mapped_column(LargeBinary, nullable=False)

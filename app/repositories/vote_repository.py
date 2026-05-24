@@ -9,9 +9,9 @@ class VoteRepository:
     def __init__(self, db: Session) -> None:
         self.db = db
 
-    def create_vote_record(self, voter_id: str, ciphertext: bytes, ciphertext_hash: str, signature: bytes) -> VoteRecord:
+    def create_vote_record(self, nim: str, ciphertext: bytes, ciphertext_hash: str, signature: bytes) -> VoteRecord:
         vote = VoteRecord(
-            voter_id=voter_id,
+            nim=nim,
             ciphertext=ciphertext,
             ciphertext_hash=ciphertext_hash,
             signature=signature,

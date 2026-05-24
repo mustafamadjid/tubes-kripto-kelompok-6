@@ -21,34 +21,34 @@ class VotingService:
         self.audit_log_repository = audit_log_repository
         self.crypto_service = crypto_service
 
-    def cast_vote(self, voter_id: str, candidate_id: int) -> VoteCastResult:
-        voter = self.voter_repository.find_by_voter_id(voter_id)
+    def cast_vote(self, nim: str, candidate_id: int) -> VoteCastResult:
+        voter = self.voter_repository.find_by_nim(nim)
         if voter is None:
-            raise VoterNotFoundError(f"Voter {voter_id} not found")
+            raise VoterNotFoundError(f"Voter {nim} not found")
         if voter.has_voted:
             self.audit_log_repository.create_log(
                 AuditEventType.DOUBLE_VOTE_ATTEMPT.value,
                 "voter",
-                voter_id,
+                nim,
                 "Double vote attempt rejected",
             )
-            raise VoterAlreadyVotedError(f"Voter {voter_id} already voted")
+            raise VoterAlreadyVotedError(f"Voter {nim} already voted")
 
         candidate = self.candidate_repository.find_by_id(candidate_id)
         if candidate is None:
             raise CandidateNotFoundError(f"Candidate {candidate_id} not found")
 
         timestamp = datetime.now(timezone.utc).astimezone().isoformat()
-        plaintext = build_vote_plaintext(voter_id, candidate_id, timestamp)
+        plaintext = build_vote_plaintext(nim, candidate_id, timestamp)
         ciphertext = self.crypto_service.encrypt_vote_plaintext(plaintext)
         ciphertext_hash = self.crypto_service.hash_ciphertext(ciphertext)
         signature = self.crypto_service.sign_hash(ciphertext_hash)
-        vote = self.vote_repository.create_vote_record(voter_id, ciphertext, ciphertext_hash, signature)
-        self.voter_repository.mark_as_voted(voter_id)
+        vote = self.vote_repository.create_vote_record(nim, ciphertext, ciphertext_hash, signature)
+        self.voter_repository.mark_as_voted(nim)
         self.audit_log_repository.create_log(
             AuditEventType.VOTE_CAST.value,
             "vote_record",
             str(vote.id),
-            f"Vote cast for voter {voter_id}",
+            f"Vote cast for voter {nim}",
         )
-        return VoteCastResult(voter_id=voter_id, candidate_id=candidate_id, vote_record_id=str(vote.id))
+        return VoteCastResult(nim=nim, candidate_id=candidate_id, vote_record_id=str(vote.id))

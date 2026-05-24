@@ -11,7 +11,7 @@ class Voter(Base):
     __tablename__ = "voters"
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid4()))
-    voter_id: Mapped[str] = mapped_column(String(32), unique=True, nullable=False, index=True)
+    nim: Mapped[str] = mapped_column(String(32), unique=True, nullable=False, index=True)
     full_name: Mapped[str] = mapped_column(String(150), nullable=False)
     password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
     has_voted: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)

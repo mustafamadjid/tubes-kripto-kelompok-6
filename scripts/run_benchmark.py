@@ -15,7 +15,7 @@ def main() -> None:
     db = SessionLocal()
     repo = BenchmarkRepository(db)
     try:
-        plaintext = "voter_id:VOTER001|candidate_id:1|timestamp:2026-05-22T14:30:00+07:00"
+        plaintext = "nim:122140191|candidate_id:1|timestamp:2026-05-22T14:30:00+07:00"
         ciphertext = crypto.encrypt_vote_plaintext(plaintext)
         hash_hex = crypto.hash_ciphertext(ciphertext)
         signature = crypto.sign_hash(hash_hex)
