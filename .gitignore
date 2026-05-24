@@ -7,3 +7,5 @@ venv/
 app/keys/*.pem
 htmlcov/
 .coverage
+.env.example
+.env.example

@@ -63,6 +63,62 @@ Credential demo:
 - Admin username: `admin`
 - Admin password: `admin123`
 
+## Deploy ke Server dengan Docker
+
+Gunakan file produksi agar PostgreSQL tidak terbuka ke publik, container auto-restart, migration berjalan saat app start, dan RSA key tersimpan di Docker volume.
+
+1. Copy env produksi:
+
+```bash
+cp .env.production.example .env
+```
+
+2. Edit `.env` di server:
+
+```env
+APP_SECRET_KEY=isi-dengan-random-secret-panjang
+POSTGRES_PASSWORD=isi-password-db-kuat
+DATABASE_URL=postgresql+psycopg://evoting_user:isi-password-db-kuat@postgres:5432/evoting_db
+ADMIN_PASSWORD=isi-password-admin-kuat
+ENABLE_DEV_ROUTES=false
+```
+
+Pastikan password di `DATABASE_URL` sama dengan `POSTGRES_PASSWORD`.
+
+3. Build dan jalankan:
+
+```bash
+docker compose -f docker-compose.prod.yml up -d --build
+```
+
+4. Lihat status:
+
+```bash
+docker compose -f docker-compose.prod.yml ps
+docker compose -f docker-compose.prod.yml logs -f app
+```
+
+5. Seed data demo hanya jika memang dibutuhkan:
+
+```bash
+docker compose -f docker-compose.prod.yml exec app python scripts/seed_data.py
+```
+
+6. Buka aplikasi:
+
+```txt
+http://SERVER_IP:8000
+```
+
+Untuk domain production, letakkan reverse proxy seperti Nginx/Caddy di depan port app, lalu arahkan HTTPS ke container app port `8000`.
+
+### Catatan Persistensi
+
+- Data PostgreSQL disimpan di volume `postgres_data`.
+- RSA key disimpan di volume `rsa_keys` pada path `/data/keys`.
+- Jangan jalankan `docker compose -f docker-compose.prod.yml down -v` kecuali ingin menghapus database dan RSA key.
+- Jika RSA key hilang sementara database vote masih ada, vote lama tidak bisa didekripsi ulang.
+
 ## Run Tests
 
 ```bash
