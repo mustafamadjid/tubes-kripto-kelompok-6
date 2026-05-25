@@ -45,10 +45,10 @@ docker compose up --build
 Di terminal lain:
 
 ```bash
-docker compose exec app alembic upgrade head
-docker compose exec app python scripts/generate_keys.py
 docker compose exec app python scripts/seed_data.py
 ```
+
+Migration dan RSA key generation berjalan otomatis saat container app start. Jangan regenerate key untuk election yang sudah punya vote, karena vote lama membutuhkan key yang sama untuk verifikasi dan dekripsi.
 
 Buka:
 
@@ -56,12 +56,36 @@ Buka:
 http://localhost:8000
 ```
 
-Credential demo:
+## Akun Demo
 
-- Voter ID: `VOTER001`
-- Voter password: `password123`
-- Admin username: `admin`
-- Admin password: `admin123`
+Setelah setup selesai, gunakan akun-akun berikut.
+
+### Voter
+
+| NIM | Password | Status |
+|---|---|---|
+| `122140001` | `password123` | Belum vote |
+| `122140002` | `password123` | Belum vote |
+| `122140003` | `password123` | Belum vote |
+| `122140099` | `password123` | Sudah vote, untuk uji double vote |
+
+### Admin
+
+| Username | Password |
+|---|---|
+| `admin` | `admin123` |
+
+## URL Aplikasi
+
+| Halaman | URL |
+|---|---|
+| Login Voter | http://localhost:8000/login |
+| Voting | http://localhost:8000/vote |
+| Login Admin | http://localhost:8000/admin/login |
+| Dashboard Admin | http://localhost:8000/admin/dashboard |
+| Rekapitulasi | http://localhost:8000/admin/results |
+| Audit Logs | http://localhost:8000/admin/audit-logs |
+| Benchmarks | http://localhost:8000/admin/benchmarks |
 
 ## Deploy ke Server dengan Docker
 
@@ -115,9 +139,12 @@ Untuk domain production, letakkan reverse proxy seperti Nginx/Caddy di depan por
 ### Catatan Persistensi
 
 - Data PostgreSQL disimpan di volume `postgres_data`.
-- RSA key disimpan di volume `rsa_keys` pada path `/data/keys`.
-- Jangan jalankan `docker compose -f docker-compose.prod.yml down -v` kecuali ingin menghapus database dan RSA key.
-- Jika RSA key hilang sementara database vote masih ada, vote lama tidak bisa didekripsi ulang.
+- RSA key disimpan di volume `rsa_keys`.
+  - Local compose: mounted ke `/app/app/keys`.
+  - Production compose: mounted ke `/data/keys`.
+- Jangan jalankan `docker compose down -v` atau `docker compose -f docker-compose.prod.yml down -v` kecuali ingin menghapus database dan RSA key.
+- Jika RSA key hilang sementara database vote masih ada, vote lama tidak bisa diverifikasi atau didekripsi ulang.
+- `python scripts/generate_keys.py` tidak menimpa key yang sudah ada. Gunakan `python scripts/generate_keys.py --force` hanya untuk election baru/fresh database.
 
 ## Run Tests
 
@@ -143,21 +170,117 @@ Lihat hasil di:
 http://localhost:8000/admin/benchmarks
 ```
 
-## Manipulation Demo
+## Skenario Demo Lengkap
 
-1. Login sebagai voter dan lakukan vote.
-2. Ambil `vote_id` dari halaman sukses atau database.
-3. Manipulasi data:
+### Skenario 1 - Vote Normal (Happy Path)
+
+**Tujuan:** Membuktikan alur enkripsi, signing, dan penyimpanan vote berjalan benar.
+
+1. Buka http://localhost:8000/login.
+2. Login dengan NIM `122140001`, password `password123`.
+3. Pilih salah satu kandidat, lalu klik **Kirim Suara**.
+4. Catat **Vote ID** yang tampil di halaman sukses.
+5. Login admin, buka **Dashboard**, lalu klik **Run Recapitulation**.
+6. Buka halaman **Results**. Suara voter terhitung pada kandidat yang dipilih dengan status `VALID`.
+
+Yang terjadi di balik layar:
+
+- Plaintext `nim:122140001|candidate_id:1|timestamp:...` dibentuk.
+- Plaintext dienkripsi dengan RSA-2048 OAEP menggunakan public key admin.
+- Hash SHA-256 dari ciphertext dihitung.
+- Hash ditandatangani dengan RSA-PSS menggunakan system private key.
+- Ciphertext, hash, dan signature disimpan ke tabel `vote_records`.
+
+### Skenario 2 - Double Vote (Pencegahan)
+
+**Tujuan:** Membuktikan sistem menolak voter yang mencoba memilih dua kali.
+
+1. Buka http://localhost:8000/login.
+2. Login dengan NIM `122140099`, password `password123`.
+3. Coba kirim suara ke kandidat manapun.
+4. Sistem menampilkan error seperti `Voter 122140099 already voted`.
+5. Login admin, lalu buka **Audit Logs**.
+6. Event `DOUBLE_VOTE_ATTEMPT` tercatat dengan NIM `122140099`.
+
+### Skenario 3 - Manipulasi Ciphertext (Deteksi Hash Mismatch)
+
+**Tujuan:** Membuktikan hash SHA-256 mendeteksi perubahan data vote.
+
+1. Jalankan vote normal dari Skenario 1, lalu catat Vote ID.
+2. Akses database langsung:
 
 ```bash
-docker compose exec app python scripts/manipulate_vote.py <vote_id> ciphertext
-docker compose exec app python scripts/manipulate_vote.py <vote_id> hash
-docker compose exec app python scripts/manipulate_vote.py <vote_id> signature
+docker compose exec postgres psql -U postgres -d evoting_db
 ```
 
-4. Login admin.
-5. Jalankan recapitulation.
-6. Buka audit logs untuk melihat vote invalid.
+3. Manipulasi ciphertext salah satu vote:
+
+```sql
+UPDATE vote_records
+SET ciphertext = '\x00000000'
+WHERE id = '<vote-id-dari-langkah-1>';
+```
+
+4. Keluar dari psql:
+
+```sql
+\q
+```
+
+5. Login admin, lalu klik **Run Recapitulation**.
+6. Buka **Results**, lalu cek bagian **Invalid Vote Details**. Vote tersebut muncul dengan status `HASH_MISMATCH`.
+7. Buka **Audit Logs**. Event `HASH_MISMATCH_DETECTED` tercatat.
+
+Alternatif tanpa masuk psql:
+
+```bash
+docker compose exec app python scripts/manipulate_vote.py <vote-id> ciphertext
+```
+
+### Skenario 4 - Manipulasi Signature (Deteksi Invalid Signature)
+
+**Tujuan:** Membuktikan RSA-PSS mendeteksi signature yang dipalsukan.
+
+1. Akses database:
+
+```bash
+docker compose exec postgres psql -U postgres -d evoting_db
+```
+
+2. Korupsi signature salah satu vote:
+
+```sql
+UPDATE vote_records
+SET signature = '\xdeadbeef'
+WHERE id = '<vote-id>';
+```
+
+3. Keluar dari psql:
+
+```sql
+\q
+```
+
+4. Login admin, lalu klik **Run Recapitulation**.
+5. Buka **Results**, lalu cek bagian **Invalid Vote Details**. Vote tersebut muncul dengan status `INVALID_SIGNATURE`.
+6. Buka **Audit Logs**. Event `INVALID_SIGNATURE_DETECTED` tercatat.
+
+Alternatif tanpa masuk psql:
+
+```bash
+docker compose exec app python scripts/manipulate_vote.py <vote-id> signature
+```
+
+### Skenario 5 - Verifikasi Integrity Keseluruhan
+
+**Tujuan:** Membuktikan sistem bisa membedakan vote valid dan tidak valid secara bersamaan.
+
+1. Vote dengan NIM `122140001`, lalu pastikan Vote ID tercatat.
+2. Vote dengan NIM `122140002`, lalu pastikan Vote ID tercatat.
+3. Manipulasi salah satu record menggunakan Skenario 3 atau Skenario 4.
+4. Login admin, lalu klik **Run Recapitulation**.
+5. Di **Results**, pastikan ringkasan menunjukkan `total_votes=2`, `valid_votes=1`, dan `invalid_votes=1`.
+6. Tabel kandidat hanya menghitung suara dari vote yang valid.
 
 ## Limitations
 

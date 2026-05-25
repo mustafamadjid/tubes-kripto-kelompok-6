@@ -1,9 +1,17 @@
 {% extends "base.html" %}
 {% block content %}
 <main class="content">
-  <section class="section-heading"><p class="eyebrow">Audit</p><h1>Audit Logs</h1></section>
-  <table><thead><tr><th>Time</th><th>Event</th><th>Entity</th><th>Message</th></tr></thead><tbody>
-    {% for log in logs %}<tr><td>{{ log.created_at }}</td><td>{{ log.event_type }}</td><td>{{ log.entity_type }} {{ log.entity_id or "" }}</td><td>{{ log.message }}</td></tr>{% endfor %}
-  </tbody></table>
+  <section class="section-heading">
+    <p class="eyebrow">Audit</p>
+    <h1>Audit Logs</h1>
+    <p>Jejak pemeriksaan sistem untuk vote invalid, manipulasi data, dan aktivitas penting lainnya.</p>
+  </section>
+  <section class="panel">
+    <div class="table-wrap">
+      <table><thead><tr><th>Time</th><th>Event</th><th>Entity</th><th>Message</th></tr></thead><tbody>
+        {% for log in logs %}<tr><td>{{ log.created_at }}</td><td><span class="status-chip">{{ log.event_type }}</span></td><td><code>{{ log.entity_type }} {{ log.entity_id or "" }}</code></td><td>{{ log.message }}</td></tr>{% endfor %}
+      </tbody></table>
+    </div>
+  </section>
 </main>
 {% endblock %}

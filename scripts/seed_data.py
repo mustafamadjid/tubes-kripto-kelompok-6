@@ -12,6 +12,15 @@ def demo_nim(index: int) -> str:
     return f"12214{index:04d}"
 
 
+def demo_voter_has_voted(index: int) -> bool:
+    return index == 99
+
+
+def apply_demo_voter_status(voter: Voter) -> None:
+    if voter.nim == demo_nim(99):
+        voter.has_voted = True
+
+
 def normalize_demo_nim(value: str) -> str:
     if value.startswith("VOTER") and value[5:].isdigit():
         return demo_nim(int(value[5:]))
@@ -33,6 +42,7 @@ def main() -> None:
         voters = db.query(Voter).all()
         for voter in voters:
             voter.nim = normalize_demo_nim(voter.nim)
+            apply_demo_voter_status(voter)
         for vote_record in db.query(VoteRecord).all():
             vote_record.nim = normalize_demo_nim(vote_record.nim)
 
@@ -43,6 +53,7 @@ def main() -> None:
                         nim=demo_nim(i),
                         full_name=f"Mahasiswa {i:03d}",
                         password_hash=hash_password("password123"),
+                        has_voted=demo_voter_has_voted(i),
                     )
                     for i in range(1, 501)
                 ]

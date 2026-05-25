@@ -3,20 +3,40 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{{ title or "Citizen Casting Vote" }}</title>
+  <title>{{ title or "SecureVote RSA" }}</title>
   <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
   <div class="page-shell">
+    {% set current_path = request.url.path if request is defined and request.url is defined else "" %}
+    {% set session_data = request.session if request is defined and request.session is defined else {} %}
+    {% set is_admin = session_data.get("is_admin") %}
+    {% set is_voter = session_data.get("nim") and not is_admin %}
+    {% set brand_href = "/admin/dashboard" if is_admin else ("/vote" if is_voter else "/login") %}
     <header class="topbar">
-      <a class="brand" href="/login">Your Website</a>
+      <a class="brand" href="{{ brand_href }}">
+        <span class="brand-mark">SV</span>
+        <span>SecureVote RSA</span>
+      </a>
       <nav class="nav">
-        <a href="/login">Home</a>
-        <a href="/admin/login">About us</a>
-        <a href="/vote">Work</a>
-        <a href="/admin/dashboard">Info</a>
+        {% if is_admin %}
+        <a class="nav-link {% if current_path == '/admin/dashboard' %}is-active{% endif %}" href="/admin/dashboard">Dashboard</a>
+        <a class="nav-link {% if current_path == '/admin/results' %}is-active{% endif %}" href="/admin/results">Results</a>
+        <a class="nav-link {% if current_path == '/admin/audit-logs' %}is-active{% endif %}" href="/admin/audit-logs">Audit</a>
+        <a class="nav-link {% if current_path == '/admin/benchmarks' %}is-active{% endif %}" href="/admin/benchmarks">Benchmarks</a>
+        {% elif is_voter %}
+        <a class="nav-link {% if current_path == '/vote' %}is-active{% endif %}" href="/vote">Ballot</a>
+        {% else %}
+        <a class="nav-link {% if current_path == '/login' %}is-active{% endif %}" href="/login">Voter Login</a>
+        {% endif %}
       </nav>
-      <a class="button button-primary nav-cta" href="/login">Get Started</a>
+      {% if is_admin or is_voter %}
+      <form method="post" action="/logout">
+        <button class="button button-secondary nav-cta" type="submit">Logout</button>
+      </form>
+      {% else %}
+      <a class="button button-secondary nav-cta" href="/admin/login">Admin</a>
+      {% endif %}
     </header>
     {% block content %}{% endblock %}
   </div>

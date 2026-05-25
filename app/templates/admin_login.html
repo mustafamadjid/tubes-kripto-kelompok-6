@@ -3,11 +3,12 @@
 <main class="center-stage">
   <section class="panel narrow">
     <p class="eyebrow">Admin Area</p>
-    <h1>Masuk Dashboard</h1>
+    <h1>Masuk dashboard</h1>
+    <p class="muted">Akses admin digunakan untuk menjalankan rekapitulasi, membaca hasil, dan memeriksa audit log.</p>
     {% if error %}<p class="alert">{{ error }}</p>{% endif %}
-    <form class="stack" method="post" action="/admin/login">
-      <label>Username<input name="username" required></label>
-      <label>Password<input name="password" type="password" required></label>
+    <form class="form-stack" method="post" action="/admin/login">
+      <label>Username<input name="username" autocomplete="username" required></label>
+      <label>Password<input name="password" type="password" autocomplete="current-password" required></label>
       <button class="button button-primary" type="submit">Log in</button>
     </form>
   </section>

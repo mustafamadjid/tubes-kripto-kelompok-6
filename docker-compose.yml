@@ -21,9 +21,12 @@ services:
       - .env
     ports:
       - "8000:8000"
+    volumes:
+      - rsa_keys:/app/app/keys
     depends_on:
       postgres:
         condition: service_healthy
 
 volumes:
   postgres_data:
+  rsa_keys:
