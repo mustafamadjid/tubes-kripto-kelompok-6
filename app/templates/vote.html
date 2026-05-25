@@ -4,22 +4,31 @@
   <section class="section-heading">
     <p class="eyebrow">Ballot</p>
     <h1>Halo, {{ voter.full_name }}</h1>
-    <p>Pilih satu kandidat. Setelah submit, suara akan dienkripsi dan kamu tidak bisa memilih lagi.</p>
+    <p>Pilih satu kandidat. Pilihan bersifat final setelah dikirim dan akan diproses melalui enkripsi, hash, dan tanda tangan digital.</p>
   </section>
   {% if error %}<p class="alert">{{ error }}</p>{% endif %}
   {% if voter.has_voted %}
-    <section class="panel"><h2>Kamu sudah memilih</h2><p>Terima kasih, status vote kamu sudah tercatat.</p></section>
+    <section class="panel state-panel">
+      <span class="status-chip status-success">Recorded</span>
+      <h2>Kamu sudah memilih</h2>
+      <p>Terima kasih. Status vote kamu sudah tercatat dan tidak bisa dikirim ulang.</p>
+    </section>
   {% else %}
     <form class="candidate-grid" method="post" action="/vote">
       {% for candidate in candidates %}
-      <label class="candidate-card">
-        <input type="radio" name="candidate_id" value="{{ candidate.id }}" required>
-        <span class="candidate-number">{{ candidate.id }}</span>
-        <strong>{{ candidate.name }}</strong>
-        <small>{{ candidate.description }}</small>
+      <label class="candidate-option">
+        <input class="candidate-radio" type="radio" name="candidate_id" value="{{ candidate.id }}" required>
+        <span class="candidate-card">
+          <span class="candidate-number">{{ candidate.id }}</span>
+          <span>
+            <strong>{{ candidate.name }}</strong>
+            <small>{{ candidate.description }}</small>
+          </span>
+        </span>
       </label>
       {% endfor %}
-      <button class="button button-primary span-all" type="submit">Submit Vote</button>
+      <p class="notice span-all">Pilihan bersifat final. Pastikan kandidat sudah benar sebelum mengirim.</p>
+      <button class="button button-primary span-all" type="submit">Kirim suara terenkripsi</button>
     </form>
   {% endif %}
 </main>

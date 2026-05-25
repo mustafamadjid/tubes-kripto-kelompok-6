@@ -1,56 +1,36 @@
-{% extends "base.html" %}
-{% block content %}
-<main class="hero">
-  <section class="hero-copy">
-    <h1>Citizen<br>Casting Vote</h1>
+{% extends "base.html" %} {% block content %}
+<main class="auth-layout auth-layout-centered">
+  <section class="auth-card">
+    <p class="eyebrow">Voter Portal</p>
+    <h1>Masuk sebagai pemilih</h1>
     <p class="lede">
-      Prototype e-voting akademik berbasis RSA-2048, SHA-256, dan digital signature
-      untuk proses pemilihan yang ringkas, terverifikasi, dan mudah didemokan.
+      Gunakan NIM terdaftar untuk masuk ke ballot. Setiap pemilih hanya dapat
+      mengirim satu suara.
     </p>
-    <form class="subscribe-row" method="post" action="/login">
-      {% if error %}<p class="alert">{{ error }}</p>{% endif %}
-      <label class="sr-label">NIM<input name="nim" placeholder="122140191" required></label>
-      <label class="sr-label">Password<input name="password" type="password" placeholder="password123" required></label>
-      <button class="button button-primary" type="submit">Login</button>
+    <form class="form-stack" method="post" action="/login">
+      {% if error %}
+      <p class="alert">{{ error }}</p>
+      {% endif %}
+      <label
+        >NIM<input
+          name="nim"
+          inputmode="numeric"
+          autocomplete="username"
+          placeholder="122140191"
+          required
+      /></label>
+      <label
+        >Password<input
+          name="password"
+          type="password"
+          autocomplete="current-password"
+          placeholder="password123"
+          required
+      /></label>
+      <button class="button button-primary" type="submit">
+        Masuk ke ballot
+      </button>
     </form>
-    <a class="button button-secondary hero-admin-link" href="/admin/login">Admin Login</a>
-  </section>
-  <section class="hero-art" aria-label="Ilustrasi warga melakukan voting">
-    <div class="person">
-      <span class="hair"></span>
-      <span class="head"></span>
-      <span class="body"></span>
-      <span class="arm"></span>
-      <span class="leg leg-one"></span>
-      <span class="leg leg-two"></span>
-    </div>
-    <div class="booth">
-      <strong>1</strong>
-      <div class="ballot-dots"><span></span><span></span><span></span></div>
-    </div>
-    <div class="side-table">
-      <span></span>
-    </div>
   </section>
 </main>
-<section class="features">
-  <div class="about-layout">
-    <article class="about-copy">
-      <p class="eyebrow">About Project</p>
-      <h2>Secure academic voting demo</h2>
-      <p>Setiap suara dikonfirmasi melalui ciphertext, hash, dan digital signature sebelum dihitung.</p>
-    </article>
-    <article class="result-card">
-      <h3>Live Candidate Preview</h3>
-      <div class="bar-row"><span>Candidate 1</span><i style="--w:72%"></i></div>
-      <div class="bar-row"><span>Candidate 2</span><i style="--w:48%"></i></div>
-      <div class="bar-row"><span>Candidate 3</span><i style="--w:20%"></i></div>
-    </article>
-  </div>
-  <div class="feature-grid">
-    <article><span class="feature-icon">K</span><h3>NIM</h3><p>Setiap mahasiswa memakai NIM unik untuk demo one-time vote.</p></article>
-    <article><span class="feature-icon">V</span><h3>Online Vote</h3><p>Voting dilakukan lewat browser dengan alur ringkas dan jelas.</p></article>
-    <article><span class="feature-icon">S</span><h3>Secure Record</h3><p>Suara dienkripsi, di-hash, dan ditandatangani sebelum disimpan.</p></article>
-  </div>
-</section>
 {% endblock %}

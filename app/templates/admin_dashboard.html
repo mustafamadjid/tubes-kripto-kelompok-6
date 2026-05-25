@@ -4,18 +4,25 @@
   <section class="section-heading">
     <p class="eyebrow">Admin Dashboard</p>
     <h1>Rekapitulasi E-Voting</h1>
+    <p>Pantau volume data dan jalankan rekapitulasi untuk memverifikasi signature, hash, dan ciphertext sebelum hasil dibaca.</p>
   </section>
   <section class="stats-grid">
-    <article><strong>{{ total_voters }}</strong><span>Voters</span></article>
-    <article><strong>{{ total_candidates }}</strong><span>Candidates</span></article>
-    <article><strong>{{ total_votes }}</strong><span>Vote Records</span></article>
-    <article><strong>{{ total_audit_logs }}</strong><span>Audit Logs</span></article>
+    <article class="stat-card"><span>Voters</span><strong>{{ total_voters }}</strong><small>Mahasiswa terdaftar</small></article>
+    <article class="stat-card"><span>Candidates</span><strong>{{ total_candidates }}</strong><small>Opsi di ballot</small></article>
+    <article class="stat-card"><span>Vote Records</span><strong>{{ total_votes }}</strong><small>Ciphertext tersimpan</small></article>
+    <article class="stat-card"><span>Audit Logs</span><strong>{{ total_audit_logs }}</strong><small>Jejak pemeriksaan</small></article>
   </section>
-  <section class="actions-row">
-    <form method="post" action="/admin/recapitulate"><button class="button button-primary" type="submit">Run Recapitulation</button></form>
-    <a class="button button-light" href="/admin/results">Results</a>
-    <a class="button button-light" href="/admin/audit-logs">Audit Logs</a>
-    <a class="button button-light" href="/admin/benchmarks">Benchmarks</a>
+  <section class="panel action-panel">
+    <div>
+      <h2>Verification run</h2>
+      <p>Rekapitulasi akan memverifikasi signature, mencocokkan hash, mendekripsi suara valid, dan mencatat suara invalid.</p>
+    </div>
+    <div class="actions-row">
+      <form method="post" action="/admin/recapitulate"><button class="button button-primary" type="submit">Run Recapitulation</button></form>
+      <a class="button button-secondary" href="/admin/results">Results</a>
+      <a class="button button-secondary" href="/admin/audit-logs">Audit Logs</a>
+      <a class="button button-secondary" href="/admin/benchmarks">Benchmarks</a>
+    </div>
   </section>
 </main>
 {% endblock %}

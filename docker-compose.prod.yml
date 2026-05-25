@@ -22,6 +22,10 @@ services:
     environment:
       RUN_MIGRATIONS: "true"
       GENERATE_KEYS_IF_MISSING: "true"
+      ADMIN_PRIVATE_KEY_PATH: /data/keys/admin_private_key.pem
+      ADMIN_PUBLIC_KEY_PATH: /data/keys/admin_public_key.pem
+      SYSTEM_PRIVATE_KEY_PATH: /data/keys/system_private_key.pem
+      SYSTEM_PUBLIC_KEY_PATH: /data/keys/system_public_key.pem
     ports:
       - "${APP_PORT:-8000}:8000"
     volumes:

@@ -1,22 +1,44 @@
 {% extends "base.html" %}
 {% block content %}
 <main class="content">
-  <section class="section-heading"><p class="eyebrow">Results</p><h1>Hasil Rekapitulasi</h1></section>
+  <section class="section-heading">
+    <p class="eyebrow">Results</p>
+    <h1>Hasil Rekapitulasi</h1>
+    <p>Ringkasan validitas suara setelah proses verifikasi signature, hash, dan dekripsi.</p>
+  </section>
   {% if not result %}
-    <p class="alert">Belum ada rekapitulasi. Jalankan dari dashboard admin.</p>
+    <section class="panel state-panel">
+      <span class="status-chip status-warning">Waiting</span>
+      <h2>Belum ada rekapitulasi</h2>
+      <p>Jalankan rekapitulasi dari dashboard admin untuk membuat hasil terbaru.</p>
+      <a class="button button-primary" href="/admin/dashboard">Buka Dashboard</a>
+    </section>
   {% else %}
     <section class="stats-grid">
-      <article><strong>{{ result.total_votes }}</strong><span>Total</span></article>
-      <article><strong>{{ result.valid_votes }}</strong><span>Valid</span></article>
-      <article><strong>{{ result.invalid_votes }}</strong><span>Invalid</span></article>
+      <article class="stat-card"><span>Total</span><strong>{{ result.total_votes }}</strong><small>Vote records</small></article>
+      <article class="stat-card"><span>Valid</span><strong>{{ result.valid_votes }}</strong><small>Masuk penghitungan</small></article>
+      <article class="stat-card"><span>Invalid</span><strong>{{ result.invalid_votes }}</strong><small>Masuk audit</small></article>
     </section>
-    <table><thead><tr><th>Kandidat</th><th>Suara</th></tr></thead><tbody>
-      {% for row in result.candidate_results %}<tr><td>{{ row.candidate_name }}</td><td>{{ row.vote_count }}</td></tr>{% endfor %}
-    </tbody></table>
-    <h2>Invalid Vote Details</h2>
-    <table><thead><tr><th>Vote ID</th><th>Status</th><th>Reason</th></tr></thead><tbody>
-      {% for row in result.invalid_vote_details %}<tr><td>{{ row.vote_id }}</td><td>{{ row.status }}</td><td>{{ row.reason }}</td></tr>{% endfor %}
-    </tbody></table>
+    <section class="panel">
+      <h2>Candidate Results</h2>
+      <div class="table-wrap">
+        <table><thead><tr><th>Kandidat</th><th>Suara</th></tr></thead><tbody>
+          {% for row in result.candidate_results %}<tr><td>{{ row.candidate_name }}</td><td>{{ row.vote_count }}</td></tr>{% endfor %}
+        </tbody></table>
+      </div>
+    </section>
+    <section class="panel">
+      <h2>Invalid Vote Details</h2>
+      <div class="table-wrap">
+        <table><thead><tr><th>Vote ID</th><th>Status</th><th>Reason</th></tr></thead><tbody>
+          {% for row in result.invalid_vote_details %}
+          <tr><td><code>{{ row.vote_id }}</code></td><td><span class="status-chip status-danger">{{ row.status }}</span></td><td>{{ row.reason }}</td></tr>
+          {% else %}
+          <tr><td colspan="3"><span class="status-chip status-success">No invalid votes</span></td></tr>
+          {% endfor %}
+        </tbody></table>
+      </div>
+    </section>
   {% endif %}
 </main>
 {% endblock %}

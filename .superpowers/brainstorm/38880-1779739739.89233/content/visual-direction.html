@@ -1,0 +1,88 @@
+<h2>Which UI direction should this e-voting app take?</h2>
+<p class="subtitle">The current app has a decorative landing feel, while the product itself needs trust, clarity, and auditability. Pick the direction that best matches your project goal.</p>
+
+<div class="cards">
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="height:220px;background:#f8fafc;border:1px solid #dbeafe;border-radius:8px;padding:14px;color:#1e293b;font-family:Inter,system-ui,sans-serif">
+        <div style="height:24px;display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+          <strong style="font-size:13px;color:#1e40af">SecureVote</strong>
+          <span style="font-size:11px;color:#64748b">Voter | Admin | Audit</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1.2fr .8fr;gap:12px">
+          <div style="background:white;border:1px solid #dbeafe;border-radius:8px;padding:14px">
+            <p style="margin:0 0 6px;font-size:10px;color:#64748b;text-transform:uppercase">Ballot status</p>
+            <h3 style="margin:0 0 10px;font-size:20px;color:#0f172a">Ready to cast vote</h3>
+            <div style="display:grid;gap:8px">
+              <div style="height:30px;border:1px solid #bfdbfe;border-radius:6px;background:#eff6ff"></div>
+              <div style="height:30px;border:1px solid #bfdbfe;border-radius:6px;background:#fff"></div>
+              <div style="height:30px;border:1px solid #bfdbfe;border-radius:6px;background:#fff"></div>
+            </div>
+          </div>
+          <div style="display:grid;gap:8px">
+            <div style="background:white;border:1px solid #dbeafe;border-radius:8px;padding:10px"><strong style="font-size:18px">128</strong><br><span style="font-size:10px;color:#64748b">Votes</span></div>
+            <div style="background:white;border:1px solid #dbeafe;border-radius:8px;padding:10px"><strong style="font-size:18px">0</strong><br><span style="font-size:10px;color:#64748b">Invalid</span></div>
+            <div style="height:36px;border-radius:6px;background:#d97706"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A. Civic Trust Dashboard</h3>
+      <p>Recommended. Calm blue system, crisp cards, clear navigation, strong focus states, readable tables, and voting flow that feels official without becoming stiff.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="height:220px;background:#07111f;border:1px solid #1e293b;border-radius:8px;padding:14px;color:#e2e8f0;font-family:'Fira Code',Consolas,monospace">
+        <div style="height:24px;display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+          <strong style="font-size:13px;color:#38bdf8">RSA_SHA256</strong>
+          <span style="font-size:10px;color:#94a3b8">cipher/hash/sign</span>
+        </div>
+        <div style="display:grid;grid-template-columns:.8fr 1.2fr;gap:12px">
+          <div style="display:grid;gap:8px">
+            <div style="height:38px;background:#0f172a;border:1px solid #334155;border-radius:6px"></div>
+            <div style="height:38px;background:#0f172a;border:1px solid #334155;border-radius:6px"></div>
+            <div style="height:38px;background:#0f172a;border:1px solid #334155;border-radius:6px"></div>
+          </div>
+          <div style="background:#0f172a;border:1px solid #334155;border-radius:8px;padding:12px">
+            <p style="margin:0 0 8px;font-size:10px;color:#38bdf8">AUDIT_TRACE</p>
+            <div style="height:8px;background:#22c55e;border-radius:99px;width:82%;margin-bottom:10px"></div>
+            <div style="height:8px;background:#f59e0b;border-radius:99px;width:54%;margin-bottom:10px"></div>
+            <div style="height:8px;background:#ef4444;border-radius:99px;width:22%"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B. Technical Crypto Lab</h3>
+      <p>Best if the demo is primarily about cryptography internals. Strong code aesthetic, dark surfaces, audit traces, and visible pipeline language.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="height:220px;background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;padding:14px;color:#431407;font-family:Inter,system-ui,sans-serif">
+        <div style="height:24px;display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+          <strong style="font-size:13px;color:#c2410c">Campus Vote</strong>
+          <span style="font-size:11px;color:#9a3412">Simple demo</span>
+        </div>
+        <div style="background:white;border:1px solid #fed7aa;border-radius:8px;padding:16px;min-height:150px">
+          <h3 style="margin:0 0 8px;font-size:22px;color:#431407">Cast your vote</h3>
+          <p style="font-size:11px;color:#9a3412;margin:0 0 12px">A friendly student flow with a clear next step.</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+            <div style="height:54px;border-radius:8px;background:#ffedd5"></div>
+            <div style="height:54px;border-radius:8px;background:#fed7aa"></div>
+            <div style="height:54px;border-radius:8px;background:#ffedd5"></div>
+          </div>
+          <div style="height:34px;border-radius:99px;background:#ea580c;margin-top:12px"></div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C. Friendly Student Flow</h3>
+      <p>Best if the priority is approachability. Warm palette and simpler language, but it may look less authoritative for admin, audit, and results screens.</p>
+    </div>
+  </div>
+</div>
