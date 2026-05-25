@@ -47,7 +47,7 @@ Fokus utama project bukan membuat sistem pemilu production-grade, tetapi membukt
 
 MVP wajib selesai:
 
-- Login voter sederhana menggunakan `voter_id` dan password dummy.
+- Login voter sederhana menggunakan `nim` dan password dummy.
 - Login admin sederhana.
 - Seeder 500 voter dan 3 kandidat.
 - Voting flow.
@@ -86,16 +86,31 @@ Jangan implementasikan fitur berikut untuk MVP 4 hari:
 
 ### 1.4 Important Domain Rules
 
+### 1.4.1 Perubahan Login Voter: NIM
+
+Data login voter terdiri dari:
+
+- `nim` (Nomor Induk Mahasiswa)
+- `password`
+
+`nim` menggantikan seluruh penggunaan `voter_id` sebagai identitas login dan identitas voter di database. Perubahan schema wajib dibuat melalui migrasi Alembic:
+
+- rename kolom `voters.voter_id` menjadi `voters.nim`;
+- rename kolom `vote_records.voter_id` menjadi `vote_records.nim`;
+- pertahankan constraint UNIQUE dan index pada `nim`;
+- update seed data agar membuat NIM mahasiswa, bukan ID pemilih buatan seperti `VOTER001`;
+- update login form, auth service, repository, session, voting service, dan plaintext vote agar menggunakan `nim`.
+
 Plaintext suara harus dibentuk dalam format:
 
 ```txt
-voter_id:{VOTER_ID}|candidate_id:{CANDIDATE_ID}|timestamp:{ISO_8601_TIMESTAMP}
+nim:{NIM}|candidate_id:{CANDIDATE_ID}|timestamp:{ISO_8601_TIMESTAMP}
 ```
 
 Contoh:
 
 ```txt
-voter_id:122140191|candidate_id:1|timestamp:2026-05-22T14:30:00+07:00
+nim:122140191|candidate_id:1|timestamp:2026-05-22T14:30:00+07:00
 ```
 
 Urutan pipeline voting wajib:
@@ -108,7 +123,7 @@ plaintext suara
   -> hash
   -> RSA-2048 PSS sign(hash)
   -> signature
-  -> save {voter_id, ciphertext, hash, signature}
+  -> save {nim, ciphertext, hash, signature}
 ```
 
 Urutan pipeline rekapitulasi wajib:
@@ -296,7 +311,7 @@ Repository hanya bertanggung jawab terhadap database operation.
 
 Contoh:
 
-- `VoterRepository.find_by_voter_id()`
+- `VoterRepository.find_by_nim()`
 - `VoterRepository.mark_as_voted()`
 - `VoteRepository.create_vote_record()`
 - `VoteRepository.find_all_votes()`
@@ -328,7 +343,7 @@ Jangan masukkan query DB atau business rule voter ke `CryptoService`.
 | Column | Type | Constraint |
 |---|---|---|
 | id | UUID | PK |
-| voter_id | VARCHAR(32) | UNIQUE, NOT NULL |
+| nim | VARCHAR(32) | UNIQUE, NOT NULL |
 | full_name | VARCHAR(150) | NOT NULL |
 | password_hash | VARCHAR(255) | NOT NULL |
 | has_voted | BOOLEAN | DEFAULT FALSE |
@@ -349,7 +364,7 @@ Jangan masukkan query DB atau business rule voter ke `CryptoService`.
 | Column | Type | Constraint |
 |---|---|---|
 | id | UUID | PK |
-| voter_id | VARCHAR(32) | NOT NULL, UNIQUE |
+| nim | VARCHAR(32) | NOT NULL, UNIQUE |
 | ciphertext | BYTEA | NOT NULL |
 | ciphertext_hash | VARCHAR(64) | NOT NULL |
 | signature | BYTEA | NOT NULL |
@@ -359,7 +374,7 @@ Jangan masukkan query DB atau business rule voter ke `CryptoService`.
 
 Important:
 
-- `voter_id` pada `vote_records` dibuat UNIQUE untuk mencegah double vote pada level DB.
+- `nim` pada `vote_records` dibuat UNIQUE untuk mencegah double vote pada level DB.
 - `ciphertext` dan `signature` gunakan `BYTEA`.
 - `ciphertext_hash` disimpan sebagai 64 hex character.
 
@@ -610,7 +625,7 @@ Required method:
 
 ```python
 class VotingService:
-    def cast_vote(self, voter_id: str, candidate_id: int) -> VoteCastResult:
+    def cast_vote(self, nim: str, candidate_id: int) -> VoteCastResult:
         ...
 ```
 
@@ -865,7 +880,7 @@ Minimal unit test harus mencakup crypto pipeline, plaintext builder/parser, voti
 #### Plaintext Tests
 
 - Valid plaintext can be parsed.
-- Missing voter_id is rejected.
+- Missing nim is rejected.
 - Missing candidate_id is rejected.
 - Missing timestamp is rejected.
 - Invalid candidate_id format is rejected.
@@ -940,7 +955,7 @@ Tema warna utama website adalah `#bfa344`; gunakan sebagai warna aksen utama unt
 
 Fields:
 
-- voter_id,
+- nim,
 - password.
 
 Actions:
@@ -1214,16 +1229,16 @@ Use this scenario for final demo:
 ### Scenario A — Normal Voting
 
 1. Seed database.
-2. Login as voter `VOTER001`.
+2. Login as voter `122140191`.
 3. Vote candidate A.
-4. Login as voter `VOTER002`.
+4. Login as voter `122140192`.
 5. Vote candidate B.
 6. Admin runs recapitulation.
 7. System shows 2 valid votes.
 
 ### Scenario B — Double Vote Prevention
 
-1. Login again as `VOTER001`.
+1. Login again as `122140191`.
 2. Try voting again.
 3. System rejects with already voted message.
 
@@ -1333,7 +1348,7 @@ Risk:
 Mitigation:
 
 - Use DB transaction.
-- Add unique constraint on `vote_records.voter_id`.
+- Add unique constraint on `vote_records.nim`.
 
 ### 19.4 Weak Demo Data
 

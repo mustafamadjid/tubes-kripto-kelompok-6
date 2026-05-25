@@ -11,7 +11,7 @@ from app.services.voting_service import VotingService
 
 @dataclass
 class FakeVoter:
-    voter_id: str
+    nim: str
     full_name: str = "Demo Voter"
     has_voted: bool = False
 
@@ -25,7 +25,7 @@ class FakeCandidate:
 @dataclass
 class FakeVote:
     id: str
-    voter_id: str
+    nim: str
     ciphertext: bytes
     ciphertext_hash: str
     signature: bytes
@@ -37,11 +37,11 @@ class FakeVoterRepository:
     def __init__(self, voters):
         self.voters = voters
 
-    def find_by_voter_id(self, voter_id):
-        return self.voters.get(voter_id)
+    def find_by_nim(self, nim):
+        return self.voters.get(nim)
 
-    def mark_as_voted(self, voter_id):
-        self.voters[voter_id].has_voted = True
+    def mark_as_voted(self, nim):
+        self.voters[nim].has_voted = True
 
 
 class FakeCandidateRepository:
@@ -59,8 +59,8 @@ class FakeVoteRepository:
     def __init__(self, votes=None):
         self.votes = votes or []
 
-    def create_vote_record(self, voter_id, ciphertext, ciphertext_hash, signature):
-        vote = FakeVote("vote-1", voter_id, ciphertext, ciphertext_hash, signature)
+    def create_vote_record(self, nim, ciphertext, ciphertext_hash, signature):
+        vote = FakeVote("vote-1", nim, ciphertext, ciphertext_hash, signature)
         self.votes.append(vote)
         return vote
 
@@ -123,7 +123,7 @@ def test_voting_service_rejects_unknown_voter():
 
 def test_voting_service_rejects_already_voted_voter():
     service = VotingService(
-        voter_repository=FakeVoterRepository({"VOTER001": FakeVoter("VOTER001", has_voted=True)}),
+        voter_repository=FakeVoterRepository({"122140191": FakeVoter("122140191", has_voted=True)}),
         candidate_repository=FakeCandidateRepository({1: FakeCandidate(1, "A")}),
         vote_repository=FakeVoteRepository(),
         audit_log_repository=FakeAuditLogRepository(),
@@ -131,12 +131,12 @@ def test_voting_service_rejects_already_voted_voter():
     )
 
     with pytest.raises(VoterAlreadyVotedError):
-        service.cast_vote("VOTER001", 1)
+        service.cast_vote("122140191", 1)
 
 
 def test_voting_service_rejects_unknown_candidate():
     service = VotingService(
-        voter_repository=FakeVoterRepository({"VOTER001": FakeVoter("VOTER001")}),
+        voter_repository=FakeVoterRepository({"122140191": FakeVoter("122140191")}),
         candidate_repository=FakeCandidateRepository({}),
         vote_repository=FakeVoteRepository(),
         audit_log_repository=FakeAuditLogRepository(),
@@ -144,12 +144,12 @@ def test_voting_service_rejects_unknown_candidate():
     )
 
     with pytest.raises(CandidateNotFoundError):
-        service.cast_vote("VOTER001", 99)
+        service.cast_vote("122140191", 99)
 
 
 def test_voting_service_uses_crypto_pipeline_in_required_order():
     crypto = FakeCrypto()
-    voter_repo = FakeVoterRepository({"VOTER001": FakeVoter("VOTER001")})
+    voter_repo = FakeVoterRepository({"122140191": FakeVoter("122140191")})
     vote_repo = FakeVoteRepository()
     service = VotingService(
         voter_repository=voter_repo,
@@ -159,16 +159,16 @@ def test_voting_service_uses_crypto_pipeline_in_required_order():
         crypto_service=crypto,
     )
 
-    result = service.cast_vote("VOTER001", 1)
+    result = service.cast_vote("122140191", 1)
 
-    assert result.voter_id == "VOTER001"
+    assert result.nim == "122140191"
     assert crypto.calls == ["encrypt", "hash", "sign"]
-    assert voter_repo.voters["VOTER001"].has_voted is True
+    assert voter_repo.voters["122140191"].has_voted is True
     assert len(vote_repo.votes) == 1
 
 
 def test_recapitulation_skips_invalid_signature():
-    vote = FakeVote("vote-1", "VOTER001", b"cipher", "a" * 64, b"bad")
+    vote = FakeVote("vote-1", "122140191", b"cipher", "a" * 64, b"bad")
     vote_repo = FakeVoteRepository([vote])
     audit_repo = FakeAuditLogRepository()
     service = RecapitulationService(
@@ -187,8 +187,8 @@ def test_recapitulation_skips_invalid_signature():
 
 
 def test_recapitulation_counts_valid_votes():
-    plaintext = build_vote_plaintext("VOTER001", 1, "2026-05-22T14:30:00+07:00")
-    vote = FakeVote("vote-1", "VOTER001", plaintext.encode(), "a" * 64, b"signature")
+    plaintext = build_vote_plaintext("122140191", 1, "2026-05-22T14:30:00+07:00")
+    vote = FakeVote("vote-1", "122140191", plaintext.encode(), "a" * 64, b"signature")
     service = RecapitulationService(
         vote_repository=FakeVoteRepository([vote]),
         candidate_repository=FakeCandidateRepository({1: FakeCandidate(1, "Candidate A")}),

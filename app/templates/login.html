@@ -9,7 +9,7 @@
     </p>
     <form class="subscribe-row" method="post" action="/login">
       {% if error %}<p class="alert">{{ error }}</p>{% endif %}
-      <label class="sr-label">Voter ID<input name="voter_id" placeholder="VOTER001" required></label>
+      <label class="sr-label">NIM<input name="nim" placeholder="122140191" required></label>
       <label class="sr-label">Password<input name="password" type="password" placeholder="password123" required></label>
       <button class="button button-primary" type="submit">Login</button>
     </form>
@@ -48,7 +48,7 @@
     </article>
   </div>
   <div class="feature-grid">
-    <article><span class="feature-icon">K</span><h3>Voter ID</h3><p>Setiap mahasiswa memakai ID pemilih unik untuk demo one-time vote.</p></article>
+    <article><span class="feature-icon">K</span><h3>NIM</h3><p>Setiap mahasiswa memakai NIM unik untuk demo one-time vote.</p></article>
     <article><span class="feature-icon">V</span><h3>Online Vote</h3><p>Voting dilakukan lewat browser dengan alur ringkas dan jelas.</p></article>
     <article><span class="feature-icon">S</span><h3>Secure Record</h3><p>Suara dienkripsi, di-hash, dan ditandatangani sebelum disimpan.</p></article>
   </div>

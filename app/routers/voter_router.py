@@ -20,10 +20,10 @@ def root():
 
 @router.get("/vote")
 def vote_page(request: Request, db: Session = Depends(get_db)):
-    voter_id = request.session.get("voter_id")
-    if not voter_id:
+    nim = request.session.get("nim")
+    if not nim:
         return RedirectResponse("/login", status_code=303)
-    voter = VoterRepository(db).find_by_voter_id(voter_id)
+    voter = VoterRepository(db).find_by_nim(nim)
     if voter is None:
         return RedirectResponse("/login", status_code=303)
     candidates = CandidateRepository(db).find_all()
@@ -32,15 +32,15 @@ def vote_page(request: Request, db: Session = Depends(get_db)):
 
 @router.post("/vote")
 def cast_vote(request: Request, candidate_id: int = Form(...), db: Session = Depends(get_db)):
-    voter_id = request.session.get("voter_id")
-    if not voter_id:
+    nim = request.session.get("nim")
+    if not nim:
         return RedirectResponse("/login", status_code=303)
     try:
-        result = create_voting_service(db).cast_vote(voter_id, candidate_id)
+        result = create_voting_service(db).cast_vote(nim, candidate_id)
         db.commit()
     except (VoterNotFoundError, VoterAlreadyVotedError, CandidateNotFoundError, FileNotFoundError) as exc:
         db.rollback()
-        voter = VoterRepository(db).find_by_voter_id(voter_id)
+        voter = VoterRepository(db).find_by_nim(nim)
         candidates = CandidateRepository(db).find_all()
         return templates.TemplateResponse(
             request,

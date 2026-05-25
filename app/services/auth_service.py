@@ -12,10 +12,10 @@ class AuthService:
     def __init__(self, voter_repository=None) -> None:
         self.voter_repository = voter_repository
 
-    def authenticate_voter(self, voter_id: str, password: str):
+    def authenticate_voter(self, nim: str, password: str):
         if self.voter_repository is None:
             return None
-        voter = self.voter_repository.find_by_voter_id(voter_id)
+        voter = self.voter_repository.find_by_nim(nim)
         if voter is None:
             return None
         if hmac.compare_digest(voter.password_hash, hash_password(password)):

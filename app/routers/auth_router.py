@@ -17,11 +17,11 @@ def login_page(request: Request):
 
 
 @router.post("/login")
-def login(request: Request, voter_id: str = Form(...), password: str = Form(...), db: Session = Depends(get_db)):
-    voter = AuthService(VoterRepository(db)).authenticate_voter(voter_id, password)
+def login(request: Request, nim: str = Form(...), password: str = Form(...), db: Session = Depends(get_db)):
+    voter = AuthService(VoterRepository(db)).authenticate_voter(nim, password)
     if voter is None:
-        return templates.TemplateResponse(request, "login.html", {"error": "Voter ID atau password salah."})
-    request.session["voter_id"] = voter.voter_id
+        return templates.TemplateResponse(request, "login.html", {"error": "NIM atau password salah."})
+    request.session["nim"] = voter.nim
     return RedirectResponse("/vote", status_code=303)
 
 

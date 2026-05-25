@@ -3,7 +3,7 @@ from dataclasses import dataclass, field
 
 @dataclass(frozen=True)
 class VoteCastResult:
-    voter_id: str
+    nim: str
     candidate_id: int
     vote_record_id: str
 
@@ -18,7 +18,7 @@ class CandidateVoteResult:
 @dataclass(frozen=True)
 class InvalidVoteDetail:
     vote_id: str
-    voter_id: str
+    nim: str
     status: str
     reason: str
 

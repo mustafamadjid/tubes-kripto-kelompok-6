@@ -26,15 +26,15 @@ def create_crypto_service(tmp_path: Path) -> CryptoService:
 def test_encrypt_decrypt_roundtrip(tmp_path):
     crypto = create_crypto_service(tmp_path)
 
-    ciphertext = crypto.encrypt_vote_plaintext("voter_id:VOTER001|candidate_id:1|timestamp:2026-05-22T14:30:00+07:00")
+    ciphertext = crypto.encrypt_vote_plaintext("nim:122140191|candidate_id:1|timestamp:2026-05-22T14:30:00+07:00")
 
     assert isinstance(ciphertext, bytes)
-    assert crypto.decrypt_vote_ciphertext(ciphertext).startswith("voter_id:VOTER001")
+    assert crypto.decrypt_vote_ciphertext(ciphertext).startswith("nim:122140191")
 
 
 def test_oaep_produces_different_ciphertext_for_same_plaintext(tmp_path):
     crypto = create_crypto_service(tmp_path)
-    plaintext = "voter_id:VOTER001|candidate_id:1|timestamp:2026-05-22T14:30:00+07:00"
+    plaintext = "nim:122140191|candidate_id:1|timestamp:2026-05-22T14:30:00+07:00"
 
     first = crypto.encrypt_vote_plaintext(plaintext)
     second = crypto.encrypt_vote_plaintext(plaintext)
@@ -44,7 +44,7 @@ def test_oaep_produces_different_ciphertext_for_same_plaintext(tmp_path):
 
 def test_hash_and_signature_validation(tmp_path):
     crypto = create_crypto_service(tmp_path)
-    ciphertext = crypto.encrypt_vote_plaintext("voter_id:VOTER001|candidate_id:1|timestamp:2026-05-22T14:30:00+07:00")
+    ciphertext = crypto.encrypt_vote_plaintext("nim:122140191|candidate_id:1|timestamp:2026-05-22T14:30:00+07:00")
 
     hash_hex = crypto.hash_ciphertext(ciphertext)
     signature = crypto.sign_hash(hash_hex)
